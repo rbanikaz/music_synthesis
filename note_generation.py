@@ -92,7 +92,7 @@ def generate_melody_waveform(melody, waveform='sine', harmonics=[1, 0.5, 0.25, 0
     for note_name, duration in melody:
         if duration == 0:
             continue
-        print(f"Generating waveform for note: {note_name} with duration: {duration * duration_factor} (duration factor: {duration_factor})")
+        #print(f"Generating waveform for note: {note_name} with duration: {duration * duration_factor} (duration factor: {duration_factor})")
         frequency = get_note_frequency(note_name)
         if frequency == 0:  # rest
             rest_samples = int(sample_rate * duration * duration_factor)

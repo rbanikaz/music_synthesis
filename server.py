@@ -20,7 +20,6 @@ def audio():
     """
     Generate audio based on the requested mode, waveform type, and parameters.
     """
-    print("Generating audio123")
     # Get parameters from the request
     mode = request.args.get('mode', 'note')
     waveform = request.args.get('waveform', 'sine')
@@ -39,7 +38,6 @@ def audio():
         wave_data = generate_notes_waveform(notes, waveform, harmonics, sample_rate, duration)
     else:  # melody mode
         melody = extract_melody("FurElise.xml")
-        print(melody)
         wave_data = generate_melody_waveform(melody, waveform, harmonics, sample_rate, duration_factor)
     
     # Write the audio data to an in-memory bytes buffer as a WAV file
