@@ -410,6 +410,18 @@
       });
     });
 
+    // Initialize form visibility based on current mode
+    const initialMode = document.querySelector('input[name="mode"]:checked').value;
+    const speedOptions = document.getElementById('speedOptions');
+    const noteOptions = document.getElementById('noteOptions');
+    if (initialMode === 'melody') {
+      speedOptions.classList.remove('hidden');
+      noteOptions.classList.add('hidden');
+    } else {
+      speedOptions.classList.add('hidden');
+      noteOptions.classList.remove('hidden');
+    }
+
     // Function to fetch the audio from the server and play it.
     async function playAudio() {
       // Disable the play button and enable the stop button
