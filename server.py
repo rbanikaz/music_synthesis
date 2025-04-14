@@ -2,7 +2,7 @@ from flask import Flask, send_file, send_from_directory, request
 import io
 import wave
 import json
-import numpy as np
+import os
 
 from note_generation import extract_melody, generate_melody_waveform, generate_notes_waveform
 
@@ -12,7 +12,7 @@ app = Flask(__name__, static_folder='.', static_url_path='')
 @app.route('/')
 def index():
     # Serve the local index.html file.
-    print("Serving index.html123")
+    print("Serving index.html")
     return send_from_directory('.', 'index.html')
 
 @app.route('/audio')
@@ -55,4 +55,4 @@ def audio():
 
 if __name__ == '__main__':
     print("Starting server...")
-    app.run(debug=True, port=5001)
+    app.run(debug=False, port=5001)
