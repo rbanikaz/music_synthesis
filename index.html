@@ -451,16 +451,13 @@
       if (mode === 'melody') {
         duration_factor = document.getElementById('speed').value;
       } else {
-        notes = document.getElementById('noteInput').value
-          .split(',')
-          .map(val => val.trim());
-
+        notes = document.getElementById('noteInput').value;
         duration = document.getElementById('noteDuration').value;
       }
       
       try {
         // Fetch the audio data from the /audio endpoint with parameters
-        const response = await fetch(`/audio?mode=${mode}&waveform=${waveformType}&harmonics=${JSON.stringify(harmonicValues)}&duration_factor=${parseFloat(duration_factor)}&duration=${parseFloat(duration)}&notes=${JSON.stringify(notes)}`);
+        const response = await fetch(`/audio?mode=${mode}&waveform=${waveformType}&harmonics=${JSON.stringify(harmonicValues)}&duration_factor=${parseFloat(duration_factor)}&duration=${parseFloat(duration)}&notes=${encodeURIComponent(notes)}`);
         const arrayBuffer = await response.arrayBuffer();
         
         // Decode the audio data.

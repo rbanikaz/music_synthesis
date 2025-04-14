@@ -29,8 +29,7 @@ def audio():
     notes = request.args.get('notes', 'A4')
     
     harmonics = json.loads(harmonics)
-    notes = json.loads(notes)
-
+    notes = [note.strip() for note in notes.split(',')]
     sample_rate = 44100
     
     # Generate the appropriate waveform
