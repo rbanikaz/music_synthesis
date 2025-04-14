@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Audio Waveform Visualizer</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="icon" type="image/png" sizes="96x96" href="favicon-96x96.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
+  <style>
+    :root {
+      --primary-color: #1a1a1a;
+      --secondary-color: #2a2a2a;
+      --accent-color: #4CAF50;
+      --accent-hover: #45a049;
+      --text-color: #ffffff;
+      --border-color: #333333;
+      --control-bg: #2a2a2a;
+      --control-border: #3a3a3a;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: var(--primary-color);
+      color: var(--text-color);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .container {
+      max-width: 1200px;
+      width: 95%;
+      margin: 2em auto;
+      padding: 2em;
+      background-color: var(--secondary-color);
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 2em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1em;
+    }
+
+    .logo {
+      width: 40px;
+      height: 40px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo.left {
+      transform: scaleX(-1);
+    }
+
+    .logo::before {
+      content: '';
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      border: 2px solid var(--accent-color);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    .logo::after {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border: 1px solid var(--accent-color);
+      border-radius: 50%;
+      animation: pulse 2s infinite 0.5s;
+    }
+
+    .logo-inner {
+      width: 10px;
+      height: 10px;
+      background-color: var(--accent-color);
+      border-radius: 50%;
+      position: relative;
+      z-index: 1;
+      animation: pulse 2s infinite 1s;
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+        opacity: 1;
+      }
+      50% {
+        transform: scale(1.1);
+        opacity: 0.7;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    h1 {
+      color: var(--accent-color);
+      font-size: 2.5em;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      margin: 0;
+    }
+
+    .visualization-section {
+      background-color: var(--primary-color);
+      border: 2px solid var(--control-border);
+      border-radius: 8px;
+      padding: 1em;
+      margin-bottom: 2em;
+    }
+
+    .waveform-container {
+      position: relative;
+      width: 100%;
+      height: 300px;
+    }
+
+    .waveform-label {
+      position: absolute;
+      top: -25px;
+      left: 10px;
+      color: var(--accent-color);
+      font-size: 0.9em;
+      background-color: var(--primary-color);
+      padding: 0 5px;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      background-color: #000;
+      border-radius: 4px;
+    }
+
+    .controls-section {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2em;
+      margin-top: 2em;
+    }
+
+    .control-panel {
+      background-color: var(--control-bg);
+      border: 1px solid var(--control-border);
+      border-radius: 8px;
+      padding: 1.5em;
+    }
+
+    .control-panel h2 {
+      color: var(--accent-color);
+      margin-top: 0;
+      margin-bottom: 1em;
+      font-size: 1.2em;
+      border-bottom: 1px solid var(--control-border);
+      padding-bottom: 0.5em;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5em;
+      margin-bottom: 1.5em;
+    }
+
+    .form-group label {
+      color: var(--accent-color);
+      font-weight: 500;
+      font-size: 0.9em;
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 1.5em;
+      margin-bottom: 1em;
+    }
+
+    .radio-option {
+      display: flex;
+      align-items: center;
+      gap: 0.5em;
+    }
+
+    select, input[type="text"], input[type="number"] {
+      background-color: var(--primary-color);
+      color: var(--text-color);
+      border: 1px solid var(--control-border);
+      border-radius: 4px;
+      padding: 8px 12px;
+      font-size: 0.9em;
+      width: 100%;
+    }
+
+    select:focus, input[type="text"]:focus, input[type="number"]:focus {
+      outline: none;
+      border-color: var(--accent-color);
+    }
+
+    .button-group {
+      display: flex;
+      gap: 1em;
+      margin-top: 1em;
+    }
+
+    button {
+      background-color: var(--accent-color);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      flex: 1;
+    }
+
+    button:hover {
+      background-color: var(--accent-hover);
+    }
+
+    button:disabled {
+      background-color: #666;
+      cursor: not-allowed;
+    }
+
+    #stopButton {
+      background-color: #ff4444;
+    }
+
+    #stopButton:hover {
+      background-color: #cc3333;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 1.5em;
+      color: var(--text-color);
+      font-size: 0.9em;
+      opacity: 0.7;
+      margin-top: auto;
+      background-color: var(--secondary-color);
+      border-top: 1px solid var(--control-border);
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        width: 100%;
+        margin: 0;
+        padding: 1em;
+        border-radius: 0;
+      }
+
+      .controls-section {
+        grid-template-columns: 1fr;
+      }
+
+      .waveform-container {
+        height: 200px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo left">
+        <div class="logo-inner"></div>
+      </div>
+      <h1>Audio Waveform Visualizer</h1>
+      <div class="logo right">
+        <div class="logo-inner"></div>
+      </div>
+    </div>
+
+    <div class="visualization-section">
+      <div class="waveform-container">
+        <div class="waveform-label">Waveform Visualization</div>
+        <canvas id="waveform"></canvas>
+      </div>
+    </div>
+
+    <div class="controls-section">
+      <div class="control-panel">
+        <h2>Mode Selection</h2>
+        <div class="form-group">
+          <div class="radio-group">
+            <div class="radio-option">
+              <input type="radio" id="noteMode" name="mode" value="note" checked>
+              <label for="noteMode">Note</label>
+            </div>
+            <div class="radio-option">
+              <input type="radio" id="melodyMode" name="mode" value="melody">
+              <label for="melodyMode">Melody</label>
+            </div>
+          </div>
+        </div>
+
+        <div id="noteOptions" class="form-group">
+          <label for="noteInput">Notes (comma separated)</label>
+          <input type="text" id="noteInput" value="A4">
+          <label for="noteDuration">Duration (seconds)</label>
+          <input type="number" id="noteDuration" value="1.0" min="0.1" step="0.1">
+        </div>
+
+        <div id="speedOptions" class="form-group hidden">
+          <label for="speed">Speed</label>
+          <select id="speed">
+            <option value="0.1">Fast</option>
+            <option value="0.25" selected>Normal</option>
+            <option value="1.0">Slow</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="control-panel">
+        <h2>Waveform Settings</h2>
+        <div class="form-group">
+          <label for="waveformType">Waveform Type</label>
+          <select id="waveformType">
+            <option value="sine">Sine</option>
+            <option value="harmonic">Harmonic</option>
+            <option value="square">Square</option>
+            <option value="sawtooth">Sawtooth</option>
+            <option value="triangle">Triangle</option>
+          </select>
+        </div>
+
+        <div id="harmonicOptions" class="form-group hidden">
+          <label for="harmonicValues">Harmonic Values (comma-separated)</label>
+          <input type="text" id="harmonicValues" placeholder="1, 0.5, 0.25, 0.125" value="1, 0.5, 0.25, 0.125">
+        </div>
+      </div>
+
+      <div class="control-panel">
+        <h2>Playback Controls</h2>
+        <div class="button-group">
+          <button id="playButton">▶ Play Audio</button>
+          <button id="stopButton" disabled>■ Stop</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Audio Waveform Visualizer | Interactive Sound Analysis
+  </div>
+
+  <script>
+    // Set up the AudioContext and analyser node.
+    const AudioContext = window.AudioContext || window.webkitAudioContext;
+    const audioCtx = new AudioContext();
+    const analyser = audioCtx.createAnalyser();
+    // Configure the analyser for time domain data.
+    analyser.fftSize = 2048; // Determines the resolution of the visualization.
+    const bufferLength = analyser.fftSize;
+    const dataArray = new Uint8Array(bufferLength);
+    
+    // Variables to track audio state
+    let currentSource = null;
+    let isPlaying = false;
+    
+    // Get references to the buttons
+    const playButton = document.getElementById("playButton");
+    const stopButton = document.getElementById("stopButton");
+    
+    // Function to stop audio playback
+    function stopAudio() {
+      if (currentSource) {
+        currentSource.stop();
+        currentSource = null;
+      }
+      isPlaying = false;
+      playButton.disabled = false;
+      playButton.textContent = "▶ Play Audio";
+      stopButton.disabled = true;
+    }
+    
+    // Add event listener to the stop button
+    stopButton.addEventListener("click", stopAudio);
+    
+    // Handle mode change
+    document.querySelectorAll('input[name="mode"]').forEach(radio => {
+      radio.addEventListener('change', (e) => {
+        const speedOptions = document.getElementById('speedOptions');
+        const noteOptions = document.getElementById('noteOptions');
+        if (e.target.value === 'melody') {
+          speedOptions.classList.remove('hidden');
+          noteOptions.classList.add('hidden');
+        } else {
+          speedOptions.classList.add('hidden');
+          noteOptions.classList.remove('hidden');
+        }
+      });
+    });
+
+    // Function to fetch the audio from the server and play it.
+    async function playAudio() {
+      // Disable the play button and enable the stop button
+      playButton.disabled = true;
+      playButton.textContent = "Playing...";
+      stopButton.disabled = false;
+      isPlaying = true;
+      
+      // Resume the AudioContext if it's suspended (modern browsers require a user gesture)
+      if(audioCtx.state === 'suspended') {
+        await audioCtx.resume();
+      }
+      
+      // Get the selected mode, waveform type and harmonic values
+      const mode = document.querySelector('input[name="mode"]:checked').value;
+      const waveformType = document.getElementById('waveformType').value;
+      const harmonicValues = document.getElementById('harmonicValues').value
+        .split(',')
+        .map(val => parseFloat(val.trim()))
+        .filter(val => !isNaN(val));
+      
+      // Get parameters based on mode
+      let duration_factor = '0.25';
+      let duration = '1.0';
+      let notes = 'A4';
+      
+      if (mode === 'melody') {
+        duration_factor = document.getElementById('speed').value;
+      } else {
+        notes = document.getElementById('noteInput').value
+          .split(',')
+          .map(val => val.trim());
+
+        duration = document.getElementById('noteDuration').value;
+      }
+      
+      try {
+        // Fetch the audio data from the /audio endpoint with parameters
+        const response = await fetch(`/audio?mode=${mode}&waveform=${waveformType}&harmonics=${JSON.stringify(harmonicValues)}&duration_factor=${parseFloat(duration_factor)}&duration=${parseFloat(duration)}&notes=${JSON.stringify(notes)}`);
+        const arrayBuffer = await response.arrayBuffer();
+        
+        // Decode the audio data.
+        audioCtx.decodeAudioData(arrayBuffer, (audioBuffer) => {
+          // Create a buffer source.
+          currentSource = audioCtx.createBufferSource();
+          currentSource.buffer = audioBuffer;
+          
+          // Connect the source to the analyser and then to the destination.
+          currentSource.connect(analyser);
+          analyser.connect(audioCtx.destination);
+          
+          // Re-enable the play button and disable the stop button when playback is complete
+          currentSource.onended = () => {
+            isPlaying = false;
+            playButton.disabled = false;
+            playButton.textContent = "▶ Play Audio";
+            stopButton.disabled = true;
+            currentSource = null;
+          };
+          
+          // Start playback.
+          currentSource.start(0);
+        }, (err) => {
+          console.error("Error decoding audio data", err);
+          isPlaying = false;
+          playButton.disabled = false;
+          playButton.textContent = "▶ Play Audio";
+          stopButton.disabled = true;
+          currentSource = null;
+        });
+      } catch (error) {
+        console.error("Error fetching audio:", error);
+        isPlaying = false;
+        playButton.disabled = false;
+        playButton.textContent = "▶ Play Audio";
+        stopButton.disabled = true;
+        currentSource = null;
+      }
+    }
+    
+    // Add event listener to the play button.
+    playButton.addEventListener("click", playAudio);
+
+    // Get a reference to the canvas and set up drawing.
+    const canvas = document.getElementById("waveform");
+    const canvasCtx = canvas.getContext("2d");
+    const WIDTH = canvas.width = canvas.offsetWidth;
+    const HEIGHT = canvas.height = 200;
+    
+    // This function draws the time-domain data (waveform) on the canvas.
+    function draw() {
+      requestAnimationFrame(draw);
+      
+      analyser.getByteTimeDomainData(dataArray);
+      
+      canvasCtx.fillStyle = "#1a1a1a";
+      canvasCtx.fillRect(0, 0, WIDTH, HEIGHT);
+      
+      canvasCtx.lineWidth = 2;
+      canvasCtx.strokeStyle = "#4CAF50";
+      canvasCtx.beginPath();
+      
+      const sliceWidth = WIDTH * 1.0 / bufferLength;
+      let x = 0;
+      for(let i = 0; i < bufferLength; i++) {
+        const v = dataArray[i] / 128.0;
+        const y = v * HEIGHT / 2;
+        
+        if(i === 0) {
+          canvasCtx.moveTo(x, y);
+        } else {
+          canvasCtx.lineTo(x, y);
+        }
+        x += sliceWidth;
+      }
+      
+      canvasCtx.lineTo(canvas.width, canvas.height / 2);
+      canvasCtx.stroke();
+    }
+    
+    // Start drawing the waveform.
+    draw();
+
+    // Handle window resize
+    window.addEventListener('resize', () => {
+      canvas.width = canvas.offsetWidth;
+      canvas.height = 200;
+    });
+
+    // Handle waveform type change
+    document.getElementById('waveformType').addEventListener('change', (e) => {
+      const harmonicOptions = document.getElementById('harmonicOptions');
+      if (e.target.value === 'harmonic') {
+        harmonicOptions.classList.remove('hidden');
+      } else {
+        harmonicOptions.classList.add('hidden');
+      }
+    });
+  </script>
+</body>
+</html>
