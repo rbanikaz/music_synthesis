@@ -363,28 +363,44 @@
   </div>
 
   <script>
-    // Set up the AudioContext and analyser node.
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    const audioCtx = new AudioContext();
+    // Create an AudioContext
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let isPlaying = false;
+    let audioSource = null;
+    
+    // Create and configure the analyzer
     const analyser = audioCtx.createAnalyser();
-    // Configure the analyser for time domain data.
-    analyser.fftSize = 2048; // Determines the resolution of the visualization.
+    analyser.fftSize = 2048; // Determines the resolution of the visualization
     const bufferLength = analyser.fftSize;
     const dataArray = new Uint8Array(bufferLength);
     
-    // Variables to track audio state
-    let currentSource = null;
-    let isPlaying = false;
-    
+    let animationFrameId = null;
+
+    // Function to initialize audio context (needed for mobile)
+    async function initializeAudio() {
+      if (audioCtx.state === 'suspended') {
+        try {
+          await audioCtx.resume();
+          console.log('Audio context resumed successfully');
+        } catch (error) {
+          console.error('Error resuming audio context:', error);
+        }
+      }
+    }
+
+    // Initialize audio on any user interaction
+    document.addEventListener('click', initializeAudio, { once: true });
+    document.addEventListener('touchstart', initializeAudio, { once: true });
+
     // Get references to the buttons
     const playButton = document.getElementById("playButton");
     const stopButton = document.getElementById("stopButton");
     
     // Function to stop audio playback
     function stopAudio() {
-      if (currentSource) {
-        currentSource.stop();
-        currentSource = null;
+      if (audioSource) {
+        audioSource.stop();
+        audioSource = null;
       }
       isPlaying = false;
       playButton.disabled = false;
@@ -430,10 +446,8 @@
       stopButton.disabled = false;
       isPlaying = true;
       
-      // Resume the AudioContext if it's suspended (modern browsers require a user gesture)
-      if(audioCtx.state === 'suspended') {
-        await audioCtx.resume();
-      }
+      // Ensure audio context is initialized
+      await initializeAudio();
       
       // Get the selected mode, waveform type and harmonic values
       const mode = document.querySelector('input[name="mode"]:checked').value;
@@ -463,31 +477,31 @@
         // Decode the audio data.
         audioCtx.decodeAudioData(arrayBuffer, (audioBuffer) => {
           // Create a buffer source.
-          currentSource = audioCtx.createBufferSource();
-          currentSource.buffer = audioBuffer;
+          audioSource = audioCtx.createBufferSource();
+          audioSource.buffer = audioBuffer;
           
           // Connect the source to the analyser and then to the destination.
-          currentSource.connect(analyser);
+          audioSource.connect(analyser);
           analyser.connect(audioCtx.destination);
           
           // Re-enable the play button and disable the stop button when playback is complete
-          currentSource.onended = () => {
+          audioSource.onended = () => {
             isPlaying = false;
             playButton.disabled = false;
             playButton.textContent = "▶ Play Audio";
             stopButton.disabled = true;
-            currentSource = null;
+            audioSource = null;
           };
           
           // Start playback.
-          currentSource.start(0);
+          audioSource.start(0);
         }, (err) => {
           console.error("Error decoding audio data", err);
           isPlaying = false;
           playButton.disabled = false;
           playButton.textContent = "▶ Play Audio";
           stopButton.disabled = true;
-          currentSource = null;
+          audioSource = null;
         });
       } catch (error) {
         console.error("Error fetching audio:", error);
@@ -495,7 +509,7 @@
         playButton.disabled = false;
         playButton.textContent = "▶ Play Audio";
         stopButton.disabled = true;
-        currentSource = null;
+        audioSource = null;
       }
     }
     
