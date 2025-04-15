@@ -367,6 +367,7 @@
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     let isPlaying = false;
     let audioSource = null;
+    let isAudioReady = false;
     
     // Create and configure the analyzer
     const analyser = audioCtx.createAnalyser();
@@ -382,15 +383,37 @@
         try {
           await audioCtx.resume();
           console.log('Audio context resumed successfully');
+          isAudioReady = true;
+          updatePlayButtonState();
         } catch (error) {
           console.error('Error resuming audio context:', error);
+          isAudioReady = false;
+          updatePlayButtonState();
         }
+      } else {
+        isAudioReady = true;
+        updatePlayButtonState();
+      }
+    }
+
+    // Function to update play button state and text
+    function updatePlayButtonState() {
+      if (!isAudioReady) {
+        playButton.textContent = "Tap to Enable Audio";
+        playButton.disabled = false;
+      } else if (isPlaying) {
+        playButton.textContent = "Playing...";
+        playButton.disabled = true;
+      } else {
+        playButton.textContent = "▶ Play Audio";
+        playButton.disabled = false;
       }
     }
 
     // Initialize audio on any user interaction
     document.addEventListener('click', initializeAudio, { once: true });
     document.addEventListener('touchstart', initializeAudio, { once: true });
+    document.addEventListener('touchend', initializeAudio, { once: true });
 
     // Get references to the buttons
     const playButton = document.getElementById("playButton");
@@ -403,8 +426,7 @@
         audioSource = null;
       }
       isPlaying = false;
-      playButton.disabled = false;
-      playButton.textContent = "▶ Play Audio";
+      updatePlayButtonState();
       stopButton.disabled = true;
     }
     
@@ -440,14 +462,17 @@
 
     // Function to fetch the audio from the server and play it.
     async function playAudio() {
+      if (!isAudioReady) {
+        await initializeAudio();
+        if (!isAudioReady) {
+          return;
+        }
+      }
+
       // Disable the play button and enable the stop button
-      playButton.disabled = true;
-      playButton.textContent = "Playing...";
-      stopButton.disabled = false;
       isPlaying = true;
-      
-      // Ensure audio context is initialized
-      await initializeAudio();
+      updatePlayButtonState();
+      stopButton.disabled = false;
       
       // Get the selected mode, waveform type and harmonic values
       const mode = document.querySelector('input[name="mode"]:checked').value;
@@ -487,9 +512,7 @@
           // Re-enable the play button and disable the stop button when playback is complete
           audioSource.onended = () => {
             isPlaying = false;
-            playButton.disabled = false;
-            playButton.textContent = "▶ Play Audio";
-            stopButton.disabled = true;
+            updatePlayButtonState();
             audioSource = null;
           };
           
@@ -498,17 +521,13 @@
         }, (err) => {
           console.error("Error decoding audio data", err);
           isPlaying = false;
-          playButton.disabled = false;
-          playButton.textContent = "▶ Play Audio";
-          stopButton.disabled = true;
+          updatePlayButtonState();
           audioSource = null;
         });
       } catch (error) {
         console.error("Error fetching audio:", error);
         isPlaying = false;
-        playButton.disabled = false;
-        playButton.textContent = "▶ Play Audio";
-        stopButton.disabled = true;
+        updatePlayButtonState();
         audioSource = null;
       }
     }
