@@ -403,9 +403,6 @@
         <div class="waveform-label">Waveform Visualization</div>
         <canvas id="waveform"></canvas>
       </div>
-      <div id="iosWarning" class="ios-warning">
-        ⚠️ Please make sure silent mode is turned off to hear audio
-      </div>
     </div>
 
     <div class="controls-section">
@@ -414,11 +411,11 @@
         <div class="form-group">
           <div class="radio-group">
             <div class="radio-option">
-              <input type="radio" id="noteMode" name="mode" value="note" checked>
+              <input type="radio" id="noteMode" name="mode" value="note">
               <label for="noteMode">Note</label>
             </div>
             <div class="radio-option">
-              <input type="radio" id="melodyMode" name="mode" value="melody">
+              <input type="radio" id="melodyMode" name="mode" value="melody" checked>
               <label for="melodyMode">Melody</label>
             </div>
           </div>
@@ -426,7 +423,7 @@
 
         <div id="noteOptions" class="form-group">
           <label for="noteInput">Notes (comma separated)</label>
-          <input type="text" id="noteInput" value="A4">
+          <input type="text" id="noteInput" value="C4,D4,E4,F4,G4,A4,B4,C5,B4,A4,G4,F4,E4,D4,C4">
           <label for="noteDuration">Duration (seconds)</label>
           <input type="number" id="noteDuration" value="1.0" min="0.1" step="0.1">
         </div>
@@ -467,6 +464,10 @@
           <button id="stopButton" disabled>■ Stop</button>
         </div>
       </div>
+    </div>
+
+    <div id="iosWarning" class="ios-warning">
+      ⚠️ Please make sure silent mode is turned off to hear audio
     </div>
   </div>
 
