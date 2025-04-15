@@ -371,14 +371,14 @@
     let analyser = null;
     let dataArray = null;
     let animationFrameId = null;
+    let bufferLength = 2048; // Default FFT size
 
     // Function to initialize audio context (needed for mobile)
     async function initializeAudio() {
       if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         analyser = audioCtx.createAnalyser();
-        analyser.fftSize = 2048;
-        const bufferLength = analyser.fftSize;
+        analyser.fftSize = bufferLength;
         dataArray = new Uint8Array(bufferLength);
       }
 
