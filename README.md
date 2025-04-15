@@ -29,6 +29,18 @@ Traditional software engineering usually requires a substantial amount of domain
 
 However, "vibe coding" enabled me to bypass extensive pre-existing domain knowledge and rapidly produce functional code through intuitive exploration and experimentation.
 
+### Vibe Coding Tips:
+
+These are personal reflections from my own experience — your mileage may vary.
+
+1. **Start with Chat:** Most new ideas begin in Chat using models like GPT-4.5, o1, or o3-mini-high. For more ambitious or complex ideas, I switch to Deep Research mode.
+2. **Use an Integrated Environment:** Once things move beyond simple scripts, tools like Cursor offer the most productive experience.
+3. **Chat vs. Cursor:** While Cursor is great for diffs, sometimes I just want advice. In those moments, I often bounce back to ChatGPT for a more conversational approach.
+4. **Reject the Diff (Sometimes):** I don’t blindly accept every suggested diff — I probably reject about 10% of them.
+5. **Unexpected but Better:** It often implements things differently than I had planned. That’s not always bad — in many cases, it’s actually a better solution than what I originally had in mind.
+6. **Stick to Your Patterns:** Sometimes it misses the design patterns I’m trying to follow. When that happens, I take back control, establish the pattern myself, and then return to the tool — after that, it usually catches on.
+
+
 ---
 
 ## 📖 Inspiration & Journey

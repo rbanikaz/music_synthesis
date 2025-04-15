@@ -2,7 +2,6 @@ from flask import Flask, send_file, send_from_directory, request
 import io
 import wave
 import json
-import os
 
 from note_generation import extract_melody, generate_melody_waveform, generate_notes_waveform
 
