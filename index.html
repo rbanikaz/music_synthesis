@@ -364,21 +364,24 @@
 
   <script>
     // Create an AudioContext
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let audioCtx = null;
     let isPlaying = false;
     let audioSource = null;
     let isAudioReady = false;
-    
-    // Create and configure the analyzer
-    const analyser = audioCtx.createAnalyser();
-    analyser.fftSize = 2048; // Determines the resolution of the visualization
-    const bufferLength = analyser.fftSize;
-    const dataArray = new Uint8Array(bufferLength);
-    
+    let analyser = null;
+    let dataArray = null;
     let animationFrameId = null;
 
     // Function to initialize audio context (needed for mobile)
     async function initializeAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 2048;
+        const bufferLength = analyser.fftSize;
+        dataArray = new Uint8Array(bufferLength);
+      }
+
       if (audioCtx.state === 'suspended') {
         try {
           await audioCtx.resume();
@@ -411,9 +414,9 @@
     }
 
     // Initialize audio on any user interaction
-    document.addEventListener('click', initializeAudio, { once: true });
-    document.addEventListener('touchstart', initializeAudio, { once: true });
-    document.addEventListener('touchend', initializeAudio, { once: true });
+    document.addEventListener('click', initializeAudio);
+    document.addEventListener('touchstart', initializeAudio);
+    document.addEventListener('touchend', initializeAudio);
 
     // Get references to the buttons
     const playButton = document.getElementById("playButton");
@@ -432,7 +435,7 @@
     
     // Add event listener to the stop button
     stopButton.addEventListener("click", stopAudio);
-    
+
     // Handle mode change
     document.querySelectorAll('input[name="mode"]').forEach(radio => {
       radio.addEventListener('change', (e) => {
@@ -462,6 +465,10 @@
 
     // Function to fetch the audio from the server and play it.
     async function playAudio() {
+      if (!audioCtx) {
+        await initializeAudio();
+      }
+
       if (!isAudioReady) {
         await initializeAudio();
         if (!isAudioReady) {
