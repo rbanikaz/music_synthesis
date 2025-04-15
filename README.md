@@ -39,6 +39,7 @@ These are personal reflections from my own experience — your mileage may vary.
 4. **Reject the Diff (Sometimes):** I don’t blindly accept every suggested diff — I probably reject about 10% of them.
 5. **Unexpected but Better:** It often implements things differently than I had planned. That’s not always bad — in many cases, it’s actually a better solution than what I originally had in mind.
 6. **Stick to Your Patterns:** Sometimes it misses the design patterns I’m trying to follow. When that happens, I take back control, establish the pattern myself, and then return to the tool — after that, it usually catches on.
+7. **Commit Frequently:**  It makes tracking and rolling back changes much easier.
 
 
 ---
