@@ -123,6 +123,15 @@
       margin-bottom: 2em;
     }
 
+    .ios-warning {
+      color: #ff9800;
+      text-align: center;
+      padding: 10px;
+      margin-top: 10px;
+      font-size: 0.9em;
+      display: none;
+    }
+
     .waveform-container {
       position: relative;
       width: 100%;
@@ -267,12 +276,112 @@
         border-radius: 0;
       }
 
+      .header {
+        flex-direction: column;
+        gap: 0.5em;
+        margin-bottom: 1.5em;
+      }
+
+      .logo {
+        width: 30px;
+        height: 30px;
+      }
+
+      .logo::before {
+        width: 25px;
+        height: 25px;
+      }
+
+      .logo::after {
+        width: 15px;
+        height: 15px;
+      }
+
+      h1 {
+        font-size: 2em;
+        text-align: center;
+      }
+
       .controls-section {
         grid-template-columns: 1fr;
+        gap: 1em;
+      }
+
+      .control-panel {
+        padding: 1em;
       }
 
       .waveform-container {
         height: 200px;
+      }
+
+      .waveform-label {
+        font-size: 0.8em;
+        top: -20px;
+      }
+
+      .form-group {
+        margin-bottom: 1em;
+      }
+
+      .radio-group {
+        flex-direction: column;
+        gap: 0.5em;
+      }
+
+      .button-group {
+        flex-direction: column;
+      }
+
+      button {
+        width: 100%;
+        padding: 12px 20px;
+      }
+
+      .ios-warning {
+        font-size: 0.85em;
+        padding: 8px;
+        margin-top: 8px;
+      }
+
+      .footer {
+        padding: 1em;
+        font-size: 0.85em;
+      }
+    }
+
+    /* Additional breakpoint for very small screens */
+    @media (max-width: 480px) {
+      .container {
+        padding: 0.8em;
+      }
+
+      h1 {
+        font-size: 1.8em;
+      }
+
+      .waveform-container {
+        height: 150px;
+      }
+
+      .control-panel h2 {
+        font-size: 1.1em;
+      }
+
+      select, input[type="text"], input[type="number"] {
+        padding: 10px;
+        font-size: 0.85em;
+      }
+    }
+
+    /* Landscape mode adjustments */
+    @media (max-height: 500px) and (orientation: landscape) {
+      .waveform-container {
+        height: 150px;
+      }
+
+      .controls-section {
+        grid-template-columns: repeat(2, 1fr);
       }
     }
   </style>
@@ -293,6 +402,9 @@
       <div class="waveform-container">
         <div class="waveform-label">Waveform Visualization</div>
         <canvas id="waveform"></canvas>
+      </div>
+      <div id="iosWarning" class="ios-warning">
+        ⚠️ Please make sure silent mode is turned off to hear audio
       </div>
     </div>
 
@@ -363,6 +475,14 @@
   </div>
 
   <script>
+    // Check if device is iOS
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const iosWarning = document.getElementById('iosWarning');
+    
+    if (isIOS) {
+      iosWarning.style.display = 'block';
+    }
+
     // Create an AudioContext
     let audioCtx = null;
     let isPlaying = false;
