@@ -373,13 +373,20 @@
     let animationFrameId = null;
     let bufferLength = 2048; // Default FFT size
 
+    // Initialize analyzer and data array
+    function initializeAnalyzer() {
+      if (!analyser) {
+        analyser = audioCtx.createAnalyser();
+        analyser.fftSize = bufferLength;
+        dataArray = new Uint8Array(bufferLength);
+      }
+    }
+
     // Function to initialize audio context (needed for mobile)
     async function initializeAudio() {
       if (!audioCtx) {
         audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        analyser = audioCtx.createAnalyser();
-        analyser.fftSize = bufferLength;
-        dataArray = new Uint8Array(bufferLength);
+        initializeAnalyzer();
       }
 
       if (audioCtx.state === 'suspended') {
@@ -551,6 +558,10 @@
     // This function draws the time-domain data (waveform) on the canvas.
     function draw() {
       requestAnimationFrame(draw);
+      
+      if (!analyser || !dataArray) {
+        return; // Skip drawing if analyzer is not ready
+      }
       
       analyser.getByteTimeDomainData(dataArray);
       
